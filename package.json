@@ -1,0 +1,80 @@
+{
+  "name": "@revenium/perplexity",
+  "version": "2.0.8",
+  "description": "NodeJS middleware for Perplexity AI API with Revenium metering",
+  "homepage": "https://github.com/revenium/revenium-middleware-perplexity-node#readme",
+  "bugs": {
+    "url": "https://github.com/revenium/revenium-middleware-perplexity-node/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/revenium/revenium-middleware-perplexity-node.git"
+  },
+  "main": "dist/cjs/index.js",
+  "module": "dist/esm/index.js",
+  "types": "dist/types/index.d.ts",
+  "exports": {
+    ".": {
+      "import": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/esm/index.js"
+      },
+      "require": {
+        "types": "./dist/types/index.d.ts",
+        "default": "./dist/cjs/index.js"
+      }
+    }
+  },
+  "files": [
+    "dist/",
+    "examples/",
+    ".env.example",
+    "README.md",
+    "CHANGELOG.md",
+    "LICENSE",
+    "SECURITY.md"
+  ],
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build:esm": "tsc -p tsconfig.esm.json",
+    "build:cjs": "tsc -p tsconfig.cjs.json",
+    "build:types": "tsc -p tsconfig.types.json",
+    "build": "npm run clean && npm run build:esm && npm run build:cjs && npm run build:types",
+    "prepublishOnly": "npm run build",
+    "example:getting-started": "npx tsx examples/getting_started.ts",
+    "example:basic": "npx tsx examples/basic.ts",
+    "example:metadata": "npx tsx examples/metadata.ts",
+    "example:advanced": "npx tsx examples/advanced.ts",
+    "example:stream": "npx tsx examples/stream.ts",
+    "test": "npm run example:getting-started && npm run example:stream"
+  },
+  "keywords": [
+    "revenium",
+    "middleware",
+    "perplexity",
+    "ai",
+    "chat",
+    "completion",
+    "metering",
+    "monitoring",
+    "typescript"
+  ],
+  "author": "Revenium",
+  "license": "MIT",
+  "type": "commonjs",
+  "engines": {
+    "node": ">=20.0.0"
+  },
+  "dependencies": {
+    "dotenv": "^17.2.2",
+    "uuid": "^13.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.7.1",
+    "tsx": "^4.19.2",
+    "typescript": "^5.9.2"
+  },
+  "peerDependencies": {
+    "openai": "^5.0.0"
+  }
+}
