@@ -8,6 +8,7 @@
 import { ReveniumPayload } from "../../types";
 import { getConfig, getLogger } from "../config";
 import { buildReveniumUrl } from "../../utils/url-builder.js";
+import { printUsageSummary } from "../../utils/summary-printer.js";
 
 // Global logger
 const logger = getLogger();
@@ -75,5 +76,6 @@ export async function sendToRevenium(payload: ReveniumPayload): Promise<void> {
     operationType: payload.operationType,
     response: responseBody,
   });
-}
 
+  printUsageSummary(payload);
+}

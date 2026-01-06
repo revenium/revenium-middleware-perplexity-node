@@ -5,6 +5,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.0.9] - 2026-01-06
+
+### Added
+
+- Trace visualization fields support for distributed tracing and analytics
+- New trace fields: environment, region, credentialAlias, traceType, traceName, parentTransactionId, transactionName, retryNumber, operationSubtype
+- Automatic region detection from AWS/Azure/GCP environment variables with fallback to AWS EC2 metadata service
+- Comprehensive unit tests for all trace field functions
+- Jest testing infrastructure with full test coverage
+- Updated .env.example with trace visualization field examples
+- Documentation for trace visualization fields in README.md
+
+### Changed
+
+- buildPayload function is now async to support region detection
+- Updated ReveniumPayload interface with trace visualization fields
+
 ## [2.0.8] - 2025-11-14
 
 ### Changed

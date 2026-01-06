@@ -7,6 +7,7 @@
 import { ReveniumConfig, Logger } from "../../types/index.js";
 import { loadConfigFromEnv } from "./loader.js";
 import { validateConfig } from "./validator.js";
+import { setConfig as setSummaryPrinterConfig } from "../../utils/summary-printer.js";
 
 /**
  * Global configuration instance
@@ -52,6 +53,15 @@ export function setConfig(config: ReveniumConfig): void {
     baseUrl: config.reveniumBaseUrl,
     hasReveniumKey: !!config.reveniumApiKey,
     hasPerplexityKey: !!config.perplexityApiKey,
+    printSummary: config.printSummary,
+    teamId: config.teamId,
+  });
+
+  setSummaryPrinterConfig({
+    reveniumApiKey: config.reveniumApiKey,
+    reveniumBaseUrl: config.reveniumBaseUrl,
+    teamId: config.teamId,
+    printSummary: config.printSummary,
   });
 }
 

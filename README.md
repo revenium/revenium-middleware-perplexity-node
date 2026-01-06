@@ -84,6 +84,10 @@ REVENIUM_METERING_API_KEY=hak_your_revenium_api_key
 
 # Optional: Enable debug logging
 # REVENIUM_DEBUG=false
+
+# Optional: Terminal cost/metrics summary
+# REVENIUM_PRINT_SUMMARY=true  # or 'human' or 'json'
+# REVENIUM_TEAM_ID=your_team_id  # Required for cost retrieval
 ```
 
 **Replace the placeholder values with your actual keys!**
@@ -200,52 +204,168 @@ The middleware automatically captures comprehensive usage data:
 
 The following table shows all fields this middleware sends to the Revenium API:
 
-| Field | Type | Required | Description |
-|-------|------|----------|-------------|
-| **Core Fields** | | | |
-| `model` | string | Yes | Perplexity model name (e.g., "sonar-pro") |
-| `provider` | string | Yes | Always "Perplexity" |
-| `inputTokenCount` | integer | Yes | Number of input tokens consumed |
-| `outputTokenCount` | integer | Yes | Number of output tokens generated |
-| `totalTokenCount` | integer | Yes | Total tokens (input + output) |
-| `requestDuration` | integer | Yes | Request duration in milliseconds |
-| **Timing** | | | |
-| `requestTime` | string | Auto | ISO 8601 timestamp when request started |
-| `responseTime` | string | Auto | ISO 8601 timestamp when response completed |
-| `completionStartTime` | string | Auto | ISO 8601 timestamp when completion started |
-| `timeToFirstToken` | integer | Streaming | Time to first token in ms (streaming only) |
-| **Request Details** | | | |
-| `transactionId` | string | Auto | Unique transaction identifier |
-| `operationType` | string | Auto | Always "CHAT" for chat completions |
-| `stopReason` | string | Auto | Completion finish reason ("END", "STOP", etc.) |
-| `isStreamed` | boolean | Auto | Whether response was streamed |
-| `costType` | string | Auto | Always "AI" |
-| `modelSource` | string | Auto | Always "PERPLEXITY" |
-| `middlewareSource` | string | Auto | Always "revenium-perplexity-node" |
-| **Cost Information** | | | |
-| `inputTokenCost` | number | Optional | Cost for input tokens (if provided by Perplexity) |
-| `outputTokenCost` | number | Optional | Cost for output tokens (if provided by Perplexity) |
-| `totalCost` | number | Optional | Total cost (if provided by Perplexity) |
-| **Business Context** | | | |
-| `organizationId` | string | Optional | Your organization identifier |
-| `productId` | string | Optional | Your product identifier |
-| `subscriptionId` | string | Optional | Your subscription identifier |
-| `taskType` | string | Optional | Type of AI task (e.g., "chat", "research") |
-| `traceId` | string | Optional | Session or conversation tracking ID |
-| `agent` | string | Optional | AI agent or bot identifier |
-| `responseQualityScore` | number | Optional | Custom quality rating (0.0-1.0) |
-| `subscriber.id` | string | Optional | User identifier |
-| `subscriber.email` | string | Optional | User email address |
-| `subscriber.credential` | object | Optional | Authentication credential (name, value) |
+| Field                   | Type    | Required  | Description                                        |
+| ----------------------- | ------- | --------- | -------------------------------------------------- |
+| **Core Fields**         |         |           |                                                    |
+| `model`                 | string  | Yes       | Perplexity model name (e.g., "sonar-pro")          |
+| `provider`              | string  | Yes       | Always "Perplexity"                                |
+| `inputTokenCount`       | integer | Yes       | Number of input tokens consumed                    |
+| `outputTokenCount`      | integer | Yes       | Number of output tokens generated                  |
+| `totalTokenCount`       | integer | Yes       | Total tokens (input + output)                      |
+| `requestDuration`       | integer | Yes       | Request duration in milliseconds                   |
+| **Timing**              |         |           |                                                    |
+| `requestTime`           | string  | Auto      | ISO 8601 timestamp when request started            |
+| `responseTime`          | string  | Auto      | ISO 8601 timestamp when response completed         |
+| `completionStartTime`   | string  | Auto      | ISO 8601 timestamp when completion started         |
+| `timeToFirstToken`      | integer | Streaming | Time to first token in ms (streaming only)         |
+| **Request Details**     |         |           |                                                    |
+| `transactionId`         | string  | Auto      | Unique transaction identifier                      |
+| `operationType`         | string  | Auto      | Always "CHAT" for chat completions                 |
+| `stopReason`            | string  | Auto      | Completion finish reason ("END", "STOP", etc.)     |
+| `isStreamed`            | boolean | Auto      | Whether response was streamed                      |
+| `costType`              | string  | Auto      | Always "AI"                                        |
+| `modelSource`           | string  | Auto      | Always "PERPLEXITY"                                |
+| `middlewareSource`      | string  | Auto      | Always "revenium-perplexity-node"                  |
+| **Cost Information**    |         |           |                                                    |
+| `inputTokenCost`        | number  | Optional  | Cost for input tokens (if provided by Perplexity)  |
+| `outputTokenCost`       | number  | Optional  | Cost for output tokens (if provided by Perplexity) |
+| `totalCost`             | number  | Optional  | Total cost (if provided by Perplexity)             |
+| **Business Context**    |         |           |                                                    |
+| `organizationId`        | string  | Optional  | Your organization identifier                       |
+| `productId`             | string  | Optional  | Your product identifier                            |
+| `subscriptionId`        | string  | Optional  | Your subscription identifier                       |
+| `taskType`              | string  | Optional  | Type of AI task (e.g., "chat", "research")         |
+| `traceId`               | string  | Optional  | Session or conversation tracking ID                |
+| `agent`                 | string  | Optional  | AI agent or bot identifier                         |
+| `responseQualityScore`  | number  | Optional  | Custom quality rating (0.0-1.0)                    |
+| `subscriber.id`         | string  | Optional  | User identifier                                    |
+| `subscriber.email`      | string  | Optional  | User email address                                 |
+| `subscriber.credential` | object  | Optional  | Authentication credential (name, value)            |
 
 **Notes:**
+
 - **Required** fields are always sent with every request
 - **Auto** fields are automatically populated by the middleware
 - **Optional** fields are only sent if you provide them via `usageMetadata`
 - **Streaming** fields are only sent for streaming requests
 
 **Reference:**
+
 - [API Reference](https://revenium.readme.io/reference/meter_ai_completion) - Complete metadata field documentation
+
+## Trace Visualization Fields
+
+The middleware automatically captures trace visualization fields for distributed tracing and analytics:
+
+| Field                 | Type   | Description                                                                     | Environment Variable               |
+| --------------------- | ------ | ------------------------------------------------------------------------------- | ---------------------------------- |
+| `environment`         | string | Deployment environment (production, staging, development)                       | `REVENIUM_ENVIRONMENT`, `NODE_ENV` |
+| `operationType`       | string | Operation classification (CHAT, EMBED, etc.) - automatically detected           | N/A (auto-detected)                |
+| `operationSubtype`    | string | Additional detail (function_call, etc.) - automatically detected                | N/A (auto-detected)                |
+| `retryNumber`         | number | Retry attempt number (0 for first attempt, 1+ for retries)                      | `REVENIUM_RETRY_NUMBER`            |
+| `parentTransactionId` | string | Parent transaction reference for distributed tracing                            | `REVENIUM_PARENT_TRANSACTION_ID`   |
+| `transactionName`     | string | Human-friendly operation label                                                  | `REVENIUM_TRANSACTION_NAME`        |
+| `region`              | string | Cloud region (us-east-1, etc.) - auto-detected from AWS/Azure/GCP               | `AWS_REGION`, `REVENIUM_REGION`    |
+| `credentialAlias`     | string | Human-readable credential name                                                  | `REVENIUM_CREDENTIAL_ALIAS`        |
+| `traceType`           | string | Categorical identifier (alphanumeric, hyphens, underscores only, max 128 chars) | `REVENIUM_TRACE_TYPE`              |
+| `traceName`           | string | Human-readable label for trace instances (max 256 chars)                        | `REVENIUM_TRACE_NAME`              |
+
+**All trace visualization fields are optional.** The middleware will automatically detect and populate these fields when possible.
+
+### Example Configuration
+
+```env
+REVENIUM_ENVIRONMENT=production
+REVENIUM_REGION=us-east-1
+REVENIUM_CREDENTIAL_ALIAS=Perplexity Production Key
+REVENIUM_TRACE_TYPE=customer_support
+REVENIUM_TRACE_NAME=Support Ticket #12345
+REVENIUM_PARENT_TRANSACTION_ID=parent-txn-123
+REVENIUM_TRANSACTION_NAME=Answer Customer Question
+REVENIUM_RETRY_NUMBER=0
+```
+
+For a complete example, see [`.env.example`](https://github.com/revenium/revenium-middleware-perplexity-node/blob/HEAD/.env.example).
+
+## Terminal Cost/Metrics Summary
+
+The middleware can print a cost and metrics summary to your terminal after each API request. This is useful for development and debugging.
+
+### Configuration
+
+Enable terminal summary output using environment variables or programmatic configuration:
+
+**Environment Variables:**
+
+```bash
+# Enable human-readable summary (default format)
+export REVENIUM_PRINT_SUMMARY=true
+
+# Or specify format explicitly
+export REVENIUM_PRINT_SUMMARY=human  # Human-readable format
+export REVENIUM_PRINT_SUMMARY=json   # JSON format for log parsing
+
+# Optional: Set team ID to fetch cost data
+export REVENIUM_TEAM_ID=your_team_id
+```
+
+**Programmatic Configuration:**
+
+```typescript
+import { Initialize } from "@revenium/perplexity";
+
+Initialize({
+  reveniumApiKey: "hak_your_api_key",
+  reveniumBaseUrl: "https://api.revenium.ai",
+  perplexityApiKey: "pplx_your_api_key",
+  printSummary: true, // or 'human' or 'json'
+  teamId: "your_team_id", // Optional: for cost retrieval
+});
+```
+
+### Output Formats
+
+**Human-readable format** (`printSummary: true` or `printSummary: 'human'`):
+
+```
+============================================================
+📊 REVENIUM USAGE SUMMARY
+============================================================
+🤖 Model: sonar-pro
+🏢 Provider: Perplexity
+⏱️  Duration: 1.23s
+
+💬 Token Usage:
+   📥 Input Tokens:  150
+   📤 Output Tokens: 75
+   📊 Total Tokens:  225
+
+💰 Cost: $0.004500
+🔖 Trace ID: trace-abc-123
+============================================================
+```
+
+**JSON format** (`printSummary: 'json'`):
+
+```json
+{
+  "model": "sonar-pro",
+  "provider": "Perplexity",
+  "durationSeconds": 1.23,
+  "inputTokenCount": 150,
+  "outputTokenCount": 75,
+  "totalTokenCount": 225,
+  "cost": 0.0045,
+  "traceId": "trace-abc-123"
+}
+```
+
+### Cost Retrieval
+
+- **Without `teamId`**: Shows token counts and duration, displays hint to set `REVENIUM_TEAM_ID`
+- **With `teamId`**: Fetches actual cost from Revenium API with automatic retry logic
+- **Cost pending**: Shows "(pending aggregation)" if cost data isn't available yet
+- **Fire-and-forget**: Never blocks your application, even if cost fetch fails
 
 ## API Overview
 

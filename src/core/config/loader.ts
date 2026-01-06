@@ -40,6 +40,20 @@ export function loadConfigFromEnv(): ReveniumConfig | null {
     process.env.PERPLEXITY_API_BASE_URL || DEFAULT_PERPLEXITY_BASE_URL;
   const debug = process.env.REVENIUM_DEBUG === "true";
 
+  let printSummary: boolean | "human" | "json" | undefined = undefined;
+  const printSummaryEnv = process.env.REVENIUM_PRINT_SUMMARY;
+  if (printSummaryEnv) {
+    if (printSummaryEnv === "true") {
+      printSummary = true;
+    } else if (printSummaryEnv === "false") {
+      printSummary = false;
+    } else if (printSummaryEnv === "human" || printSummaryEnv === "json") {
+      printSummary = printSummaryEnv;
+    }
+  }
+
+  const teamId = process.env.REVENIUM_TEAM_ID;
+
   if (!reveniumApiKey) return null;
   if (!perplexityApiKey) return null;
 
@@ -49,6 +63,7 @@ export function loadConfigFromEnv(): ReveniumConfig | null {
     perplexityApiKey,
     perplexityBaseUrl,
     debug,
+    printSummary,
+    teamId,
   };
 }
-

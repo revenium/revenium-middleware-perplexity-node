@@ -92,6 +92,10 @@ export interface ReveniumConfig {
   debug?: boolean;
   /** Custom logger */
   logger?: Logger;
+  /** Print usage summary to console (default: false). Can be true, false, 'human', or 'json' */
+  printSummary?: boolean | "human" | "json";
+  /** Team ID for cost retrieval from Revenium API */
+  teamId?: string;
 }
 
 /**
@@ -135,6 +139,17 @@ export interface ReveniumPayload {
   timeToFirstToken?: number;
   agent?: string;
   responseQualityScore?: number;
+
+  // Trace visualization fields
+  environment?: string;
+  region?: string;
+  credentialAlias?: string;
+  traceType?: string;
+  traceName?: string;
+  parentTransactionId?: string;
+  transactionName?: string;
+  retryNumber?: number;
+  operationSubtype?: string;
 
   // Middleware info
   middlewareSource: string;
