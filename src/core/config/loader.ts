@@ -53,11 +53,12 @@ export function loadConfigFromEnv(): ReveniumConfig | null {
   }
 
   const teamId = process.env.REVENIUM_TEAM_ID;
+  const capturePromptsEnv = process.env.REVENIUM_CAPTURE_PROMPTS;
 
   if (!reveniumApiKey) return null;
   if (!perplexityApiKey) return null;
 
-  return {
+  const config: any = {
     reveniumApiKey,
     reveniumBaseUrl,
     perplexityApiKey,
@@ -66,4 +67,10 @@ export function loadConfigFromEnv(): ReveniumConfig | null {
     printSummary,
     teamId,
   };
+
+  if (capturePromptsEnv !== undefined) {
+    config.capturePrompts = capturePromptsEnv.toLowerCase() === "true";
+  }
+
+  return config;
 }

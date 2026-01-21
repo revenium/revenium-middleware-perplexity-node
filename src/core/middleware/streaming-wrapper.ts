@@ -5,6 +5,11 @@
 import type { UsageMetadata } from "../../types";
 import { getLogger } from "../config";
 import { trackUsageAsync } from "../tracking";
+import {
+  shouldCapturePrompts,
+  getMaxPromptSize,
+  sanitizeCredentials,
+} from "../../utils/prompt-extraction.js";
 
 const logger = getLogger();
 
@@ -18,6 +23,11 @@ export class StreamingWrapper {
   private transactionId: string;
   private metadata?: UsageMetadata;
   private config: any;
+  private responseFormat?:
+    | { type: string; json_schema?: { name: string } }
+    | string;
+  private messages: any;
+  private accumulatedContent: string = "";
 
   constructor(
     stream: AsyncIterable<any>,
@@ -25,7 +35,9 @@ export class StreamingWrapper {
     startTime: Date,
     transactionId: string,
     metadata?: UsageMetadata,
-    config?: any
+    config?: any,
+    responseFormat?: { type: string; json_schema?: { name: string } } | string,
+    messages?: any
   ) {
     this.stream = stream;
     this.model = model;
@@ -33,6 +45,8 @@ export class StreamingWrapper {
     this.transactionId = transactionId;
     this.metadata = metadata;
     this.config = config || {};
+    this.responseFormat = responseFormat;
+    this.messages = messages || [];
   }
 
   /**
@@ -46,6 +60,7 @@ export class StreamingWrapper {
     let costData: any = undefined;
     let firstChunkTime: Date | null = null;
     let timeToFirstToken = 0;
+    let completed = false;
 
     try {
       for await (const chunk of this.stream) {
@@ -57,6 +72,20 @@ export class StreamingWrapper {
         }
 
         lastChunk = chunk;
+
+        if (
+          chunk.choices?.[0]?.delta?.content &&
+          shouldCapturePrompts(this.metadata)
+        ) {
+          const maxSize = getMaxPromptSize();
+          const remaining = maxSize - this.accumulatedContent.length;
+          if (remaining > 0) {
+            this.accumulatedContent += chunk.choices[0].delta.content.slice(
+              0,
+              remaining
+            );
+          }
+        }
 
         // Track usage if available in chunk
         if (chunk.usage) {
@@ -71,6 +100,8 @@ export class StreamingWrapper {
 
         yield chunk;
       }
+
+      completed = true;
 
       // Send metering data when stream completes (fire-and-forget)
       const endTime = Date.now();
@@ -89,11 +120,67 @@ export class StreamingWrapper {
         isStreamed: true,
         timeToFirstToken,
         cost: costData,
+        responseFormat: this.responseFormat,
+        messages: this.messages,
+        responseContent: this.accumulatedContent
+          ? sanitizeCredentials(this.accumulatedContent)
+          : undefined,
       });
     } catch (error: any) {
-      // Log error
+      completed = true;
+
       logger.error("[Revenium] Error in stream processing:", error.message);
+
+      const endTime = Date.now();
+      const duration = endTime - this.startTime.getTime();
+
+      trackUsageAsync({
+        requestId: this.transactionId,
+        model: this.model,
+        promptTokens: inputTokens,
+        completionTokens: outputTokens,
+        totalTokens,
+        duration,
+        finishReason: "error",
+        usageMetadata: this.metadata,
+        isStreamed: true,
+        messages: this.messages,
+        responseContent: this.accumulatedContent
+          ? sanitizeCredentials(this.accumulatedContent)
+          : undefined,
+      });
+
       throw error;
+    } finally {
+      if (!completed) {
+        const endTime = Date.now();
+        const duration = endTime - this.startTime.getTime();
+
+        trackUsageAsync({
+          requestId: this.transactionId,
+          model: this.model,
+          promptTokens: inputTokens,
+          completionTokens: outputTokens,
+          totalTokens,
+          duration,
+          finishReason: "cancelled",
+          usageMetadata: this.metadata,
+          isStreamed: true,
+          timeToFirstToken,
+          cost: costData,
+          responseFormat: this.responseFormat,
+          messages: this.messages,
+          responseContent: this.accumulatedContent
+            ? sanitizeCredentials(this.accumulatedContent)
+            : undefined,
+        });
+
+        logger.debug("[Revenium] Streaming cancelled", {
+          requestId: this.transactionId,
+          model: this.model,
+          duration,
+        });
+      }
     }
   }
 }

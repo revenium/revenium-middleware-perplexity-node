@@ -46,6 +46,7 @@
     "example:metadata": "npx tsx examples/metadata.ts",
     "example:advanced": "npx tsx examples/advanced.ts",
     "example:stream": "npx tsx examples/stream.ts",
+    "example:prompt-capture": "npx tsx examples/prompt-capture.ts",
     "example": "npm run example:getting-started"
   },
   "keywords": [
