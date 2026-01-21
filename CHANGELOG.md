@@ -5,6 +5,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [2.1.0] - 2026-01-21
+
+### Added
+
+- Prompt capture functionality with automatic credential sanitization
+- New prompt capture fields in ReveniumPayload: systemPrompt, inputMessages, outputResponse, promptsTruncated
+- Configuration options: capturePrompts (boolean), maxPromptSize (number, default: 50000)
+- Environment variables: REVENIUM_CAPTURE_PROMPTS, REVENIUM_MAX_PROMPT_SIZE
+- Per-call override via usageMetadata.capturePrompts
+- Comprehensive credential sanitization with 13 patterns:
+  - Perplexity API keys (pplx-\*)
+  - OpenAI keys (sk-_, sk-proj-_, sk-ant-\*)
+  - AWS access keys (AKIA\*)
+  - GitHub tokens (ghp*\*, ghs*\*)
+  - JWT tokens (eyJ*.eyJ*.\*)
+  - Bearer tokens
+  - Generic API keys, tokens, passwords, secrets
+- Automatic truncation of prompts exceeding maxPromptSize with truncation flag
+
+### Security
+
+- All captured prompts are automatically sanitized to remove sensitive credentials
+- Credential patterns are redacted before transmission to Revenium API
+- Prompt capture is opt-in (disabled by default) for privacy
+
 ## [2.0.9] - 2026-01-06
 
 ### Added

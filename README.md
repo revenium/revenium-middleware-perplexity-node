@@ -287,6 +287,72 @@ REVENIUM_RETRY_NUMBER=0
 
 For a complete example, see [`.env.example`](https://github.com/revenium/revenium-middleware-perplexity-node/blob/HEAD/.env.example).
 
+## Prompt Capture
+
+The middleware can capture prompts and responses for analysis. This feature is **disabled by default** for privacy.
+
+### Configuration
+
+Enable prompt capture using environment variables, programmatic configuration, or per-call metadata:
+
+**Environment Variables:**
+
+```bash
+export REVENIUM_CAPTURE_PROMPTS=true
+export REVENIUM_MAX_PROMPT_SIZE=50000
+```
+
+**Programmatic Configuration:**
+
+```typescript
+import { Initialize } from "@revenium/perplexity";
+
+Initialize({
+  reveniumApiKey: "hak_your_key",
+  reveniumBaseUrl: "https://api.revenium.ai",
+  perplexityApiKey: "pplx_your_key",
+  capturePrompts: true,
+  maxPromptSize: 50000,
+});
+```
+
+**Per-Call Override:**
+
+```typescript
+const response = await client.chat.completions.create(
+  {
+    model: "llama-3.1-sonar-small-128k-online",
+    messages: [{ role: "user", content: "Hello" }],
+  },
+  {
+    usageMetadata: { capturePrompts: true },
+  },
+);
+```
+
+### Configuration Priority
+
+The middleware uses the following priority order (highest to lowest):
+
+1. Per-call `usageMetadata.capturePrompts`
+2. Programmatic `config.capturePrompts`
+3. Environment variable `REVENIUM_CAPTURE_PROMPTS`
+4. Default: `false`
+
+### Security
+
+All captured prompts are automatically sanitized to remove sensitive credentials:
+
+- Perplexity API keys (pplx-\*)
+- OpenAI keys (sk-\*, sk-proj-\*, sk-ant-\*)
+- AWS access keys (AKIA\*)
+- GitHub tokens (ghp*\*, ghs*\*)
+- JWT tokens
+- Bearer tokens
+- Generic API keys, tokens, passwords, secrets
+
+Prompts exceeding `maxPromptSize` (default: 50000 characters) are automatically truncated with a flag indicating truncation.
+
 ## Terminal Cost/Metrics Summary
 
 The middleware can print a cost and metrics summary to your terminal after each API request. This is useful for development and debugging.
