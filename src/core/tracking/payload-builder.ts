@@ -27,6 +27,7 @@ import {
   getRetryNumber,
   detectOperationSubtype,
 } from "../../utils/trace-fields.js";
+import { extractPrompts } from "../../utils/prompt-extraction.js";
 
 // Global logger
 const logger = getLogger();
@@ -53,7 +54,7 @@ export async function buildPayload(
   startTime: number,
   duration: number,
   providerInfo?: ProviderInfo,
-  timeToFirstToken?: number
+  timeToFirstToken?: number,
 ): Promise<ReveniumPayload> {
   const now = new Date().toISOString();
   const requestTime = new Date(startTime).toISOString();
@@ -133,6 +134,8 @@ export async function buildPayload(
   };
 
   // Chat-specific fields
+  const promptData = extractPrompts(request, response, request.usageMetadata);
+
   return {
     ...commonPayload,
     operationType: "CHAT",
@@ -146,5 +149,11 @@ export async function buildPayload(
     isStreamed: Boolean(request.stream),
     // Time to first token (for streaming requests)
     timeToFirstToken: timeToFirstToken,
+    ...(promptData && {
+      systemPrompt: promptData.systemPrompt,
+      inputMessages: promptData.inputMessages,
+      outputResponse: promptData.outputResponse,
+      promptsTruncated: promptData.promptsTruncated,
+    }),
   };
 }

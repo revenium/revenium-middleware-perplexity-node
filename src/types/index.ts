@@ -54,6 +54,9 @@ export interface UsageMetadata {
 
   /** Agent or model variant identifier */
   agent?: string;
+
+  /** Per-call override for prompt capture (overrides environment variable and config) */
+  capturePrompts?: boolean;
 }
 
 /**
@@ -96,6 +99,10 @@ export interface ReveniumConfig {
   printSummary?: boolean | "human" | "json";
   /** Team ID for cost retrieval from Revenium API */
   teamId?: string;
+  /** Whether to capture and send prompts to Revenium API (default: false) */
+  capturePrompts?: boolean;
+  /** Maximum size in characters for captured prompts before truncation (default: 50000). Note: uses JavaScript string length (UTF-16 code units), not byte count. */
+  maxPromptSize?: number;
 }
 
 /**
@@ -158,6 +165,15 @@ export interface ReveniumPayload {
   inputTokenCost?: number;
   outputTokenCost?: number;
   totalCost?: number;
+
+  // Additional attributes
+  attributes?: Record<string, unknown>;
+
+  // Prompt capture fields
+  systemPrompt?: string;
+  inputMessages?: string;
+  outputResponse?: string;
+  promptsTruncated?: boolean;
 }
 
 /**

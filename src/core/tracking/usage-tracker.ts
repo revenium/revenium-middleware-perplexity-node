@@ -29,7 +29,7 @@ export async function sendReveniumMetrics(
   startTime: number,
   duration: number,
   providerInfo?: ProviderInfo,
-  timeToFirstToken?: number
+  timeToFirstToken?: number,
 ): Promise<void> {
   await safeAsyncOperation(
     async () => {
@@ -40,7 +40,7 @@ export async function sendReveniumMetrics(
         startTime,
         duration,
         providerInfo,
-        timeToFirstToken
+        timeToFirstToken,
       );
       await sendToRevenium(payload);
     },
@@ -50,7 +50,7 @@ export async function sendReveniumMetrics(
       rethrow: false, // Don't rethrow to maintain fire-and-forget behavior
       messagePrefix: "Chat completion tracking failed: ",
     },
-    logger
+    logger,
   );
 }
 
@@ -71,6 +71,9 @@ export function trackUsageAsync(trackingData: {
   timeToFirstToken?: number;
   providerInfo?: ProviderInfo;
   cost?: PerplexityCost;
+  responseFormat?: { type: string; json_schema?: { name: string } } | string;
+  messages?: any;
+  responseContent?: string;
 }): void {
   // Build DTO response object from tracking data
   const dtoResponse: PerplexityResponse = {
@@ -88,10 +91,12 @@ export function trackUsageAsync(trackingData: {
       {
         index: 0,
         finish_reason: trackingData.finishReason,
-        message: {
-          role: "assistant",
-          content: "",
-        },
+        ...(trackingData.responseContent && {
+          message: {
+            role: "assistant",
+            content: trackingData.responseContent,
+          },
+        }),
       },
     ],
   };
@@ -99,9 +104,10 @@ export function trackUsageAsync(trackingData: {
   // Build DTO request object from tracking data
   const dtoRequest: PerplexityChatRequest = {
     model: trackingData.model,
-    messages: [],
+    messages: trackingData.messages || [],
     usageMetadata: trackingData.usageMetadata,
     stream: trackingData.isStreamed,
+    response_format: trackingData.responseFormat,
   };
 
   const startTime = Date.now() - trackingData.duration;
@@ -112,7 +118,7 @@ export function trackUsageAsync(trackingData: {
     startTime,
     trackingData.duration,
     trackingData.providerInfo,
-    trackingData.timeToFirstToken
+    trackingData.timeToFirstToken,
   )
     .then(() => {
       logger.debug("Usage tracking completed successfully", {
