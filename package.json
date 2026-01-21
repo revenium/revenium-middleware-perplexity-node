@@ -1,6 +1,6 @@
 {
   "name": "@revenium/perplexity",
-  "version": "2.0.9",
+  "version": "2.1.0",
   "description": "NodeJS middleware for Perplexity AI API with Revenium metering",
   "homepage": "https://github.com/revenium/revenium-middleware-perplexity-node#readme",
   "bugs": {
