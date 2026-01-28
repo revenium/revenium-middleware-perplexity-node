@@ -17,8 +17,8 @@ async function main() {
 
   try {
     const metadata: UsageMetadata = {
-      organizationId: "org-prompt-capture-demo",
-      productId: "prod-perplexity-prompt-capture",
+      organizationName: "org-prompt-capture-demo",
+      productName: "prod-perplexity-prompt-capture",
     };
 
     const response = await client
@@ -40,7 +40,7 @@ async function main() {
           ],
           max_tokens: 100,
         },
-        metadata
+        metadata,
       );
 
     console.log("Response:", response.choices[0]?.message?.content);
@@ -48,7 +48,7 @@ async function main() {
   } catch (error) {
     console.error(
       "Error:",
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
   }
 
@@ -58,8 +58,8 @@ async function main() {
 
   try {
     const metadata2: UsageMetadata = {
-      organizationId: "org-prompt-capture-demo",
-      productId: "prod-perplexity-prompt-capture",
+      organizationName: "org-prompt-capture-demo",
+      productName: "prod-perplexity-prompt-capture",
       capturePrompts: false,
     };
 
@@ -81,7 +81,7 @@ async function main() {
           ],
           max_tokens: 100,
         },
-        metadata2
+        metadata2,
       );
 
     console.log("Response:", response2.choices[0]?.message?.content);
@@ -89,7 +89,7 @@ async function main() {
   } catch (error) {
     console.error(
       "Error:",
-      error instanceof Error ? error.message : String(error)
+      error instanceof Error ? error.message : String(error),
     );
   }
 

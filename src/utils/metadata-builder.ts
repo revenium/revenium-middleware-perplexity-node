@@ -5,7 +5,7 @@
  * and provide consistent metadata processing across the codebase.
  */
 
-import { UsageMetadata, Subscriber } from '../types/index.js';
+import { UsageMetadata, Subscriber } from "../types/index.js";
 
 /**
  * Metadata field configuration for conditional inclusion
@@ -27,19 +27,23 @@ interface MetadataFieldConfig {
  * Subscriber object is passed through directly without transformation
  */
 const METADATA_FIELD_MAP: MetadataFieldConfig[] = [
-  { source: 'traceId' },
-  { source: 'taskType' },
-  { source: 'agent' },
-  { source: 'organizationId' },
-  { source: 'productId' },
-  { source: 'subscriber' }, // Pass through nested subscriber object directly
-  { source: 'subscriptionId' },
+  { source: "traceId" },
+  { source: "taskType" },
+  { source: "agent" },
+  { source: "organizationName" },
+  { source: "organizationId" },
+  { source: "productName" },
+  { source: "productId" },
+  { source: "subscriber" }, // Pass through nested subscriber object directly
+  { source: "subscriptionId" },
   {
-    source: 'responseQualityScore',
+    source: "responseQualityScore",
     transform: (value: unknown) => {
       // Ensure quality score is between 0.0 and 1.0 (API spec requirement)
-      if (typeof value === 'number') return Math.max(0, Math.min(1, value));
-      return value;
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return Math.max(0, Math.min(1, value));
+      }
+      return undefined;
     },
   },
 ];
@@ -50,11 +54,14 @@ const METADATA_FIELD_MAP: MetadataFieldConfig[] = [
  * This function eliminates the repetitive spreading pattern and provides
  * a clean, testable way to handle metadata transformation.
  * Subscriber object is passed through directly without transformation.
+ * Implements fallback logic for backward compatibility: new fields take precedence over deprecated fields.
  *
  * @param usageMetadata - Source metadata from request
  * @returns Clean metadata object for payload
  */
-export function buildMetadataFields(usageMetadata?: UsageMetadata): Record<string, unknown> {
+export function buildMetadataFields(
+  usageMetadata?: UsageMetadata,
+): Record<string, unknown> {
   if (!usageMetadata) return {};
   const result: Record<string, unknown> = {};
 
@@ -73,6 +80,23 @@ export function buildMetadataFields(usageMetadata?: UsageMetadata): Record<strin
 
     result[targetField] = transformedValue;
   }
+
+  // Implement fallback logic for backward compatibility
+  // Priority: new field → deprecated field
+  if (
+    result.organizationName === undefined &&
+    result.organizationId !== undefined
+  ) {
+    result.organizationName = result.organizationId;
+  }
+  if (result.productName === undefined && result.productId !== undefined) {
+    result.productName = result.productId;
+  }
+
+  // Remove deprecated fields from payload (backend only accepts new names)
+  delete result.organizationId;
+  delete result.productId;
+
   return result;
 }
 
@@ -85,7 +109,7 @@ export function buildMetadataFields(usageMetadata?: UsageMetadata): Record<strin
  */
 export function validateMetadata(
   usageMetadata?: UsageMetadata,
-  requiredFields: (keyof UsageMetadata)[] = []
+  requiredFields: (keyof UsageMetadata)[] = [],
 ): {
   isValid: boolean;
   missingFields: string[];
@@ -98,7 +122,7 @@ export function validateMetadata(
     return {
       isValid: false,
       missingFields: requiredFields as string[],
-      warnings: ['No metadata provided'],
+      warnings: ["No metadata provided"],
     };
   }
 
@@ -113,13 +137,20 @@ export function validateMetadata(
       const score = usageMetadata.responseQualityScore;
       // API Spec: https://revenium.readme.io/reference/meter_ai_completion (responseQualityScore)
       // "typically on a 0.0-1.0 scale"
-      if (typeof score !== 'number' || score < 0 || score > 1) {
-        warnings.push('responseQualityScore should be a number between 0.0 and 1.0');
+      if (typeof score !== "number" || score < 0 || score > 1) {
+        warnings.push(
+          "responseQualityScore should be a number between 0.0 and 1.0",
+        );
       }
     }
 
-    if (usageMetadata.subscriber?.email && !usageMetadata.subscriber.email.includes('@')) {
-      warnings.push('subscriber.email does not appear to be a valid email address');
+    if (
+      usageMetadata.subscriber?.email &&
+      !usageMetadata.subscriber.email.includes("@")
+    ) {
+      warnings.push(
+        "subscriber.email does not appear to be a valid email address",
+      );
     }
   }
   return {
@@ -135,7 +166,9 @@ export function validateMetadata(
  * @param sources - Metadata sources in priority order (first wins)
  * @returns Merged metadata object
  */
-export function mergeMetadata(...sources: (UsageMetadata | undefined)[]): UsageMetadata {
+export function mergeMetadata(
+  ...sources: (UsageMetadata | undefined)[]
+): UsageMetadata {
   const result: UsageMetadata = {};
 
   // Process sources in reverse order so first source wins
@@ -152,15 +185,15 @@ export function mergeMetadata(...sources: (UsageMetadata | undefined)[]): UsageM
  * @returns Extracted metadata and cleaned parameters
  */
 export function extractMetadata<T extends Record<string, unknown>>(
-  params: T & { usageMetadata?: UsageMetadata }
+  params: T & { usageMetadata?: UsageMetadata },
 ): {
   metadata: UsageMetadata | undefined;
-  cleanParams: Omit<T, 'usageMetadata'>;
+  cleanParams: Omit<T, "usageMetadata">;
 } {
   const { usageMetadata, ...cleanParams } = params;
   return {
     metadata: usageMetadata,
-    cleanParams: cleanParams as Omit<T, 'usageMetadata'>,
+    cleanParams: cleanParams as Omit<T, "usageMetadata">,
   };
 }
 
@@ -171,20 +204,27 @@ export function extractMetadata<T extends Record<string, unknown>>(
  * @param usageMetadata - Source metadata
  * @returns Logging context object with sanitized PII
  */
-export function createLoggingContext(usageMetadata?: UsageMetadata): Record<string, unknown> {
+export function createLoggingContext(
+  usageMetadata?: UsageMetadata,
+): Record<string, unknown> {
   if (!usageMetadata) return {};
 
   // Use sanitizer to protect PII in logs
   const sanitized = sanitizeMetadataForLogging(usageMetadata);
-  const sanitizedSubscriber = sanitized.subscriber as { id?: string; email?: string; credential?: unknown };
+  const sanitizedSubscriber = sanitized.subscriber as {
+    id?: string;
+    email?: string;
+    credential?: unknown;
+  };
 
   return {
     traceId: usageMetadata.traceId,
     taskType: usageMetadata.taskType,
     subscriberId: usageMetadata.subscriber?.id,
-    subscriberEmail: sanitizedSubscriber?.email,  // ← Now masked: us***@example.com
-    organizationId: usageMetadata.organizationId,
-    productId: usageMetadata.productId,
+    subscriberEmail: sanitizedSubscriber?.email, // ← Now masked: us***@example.com
+    organizationName:
+      usageMetadata.organizationName || usageMetadata.organizationId,
+    productName: usageMetadata.productName || usageMetadata.productId,
     agent: usageMetadata.agent,
   };
 }
@@ -195,7 +235,9 @@ export function createLoggingContext(usageMetadata?: UsageMetadata): Record<stri
  * @param usageMetadata - Source metadata
  * @returns Sanitized metadata safe for logging
  */
-export function sanitizeMetadataForLogging(usageMetadata?: UsageMetadata): Record<string, unknown> {
+export function sanitizeMetadataForLogging(
+  usageMetadata?: UsageMetadata,
+): Record<string, unknown> {
   if (!usageMetadata) return {};
 
   // Create a copy and handle nested subscriber object
@@ -213,13 +255,16 @@ export function sanitizeMetadataForLogging(usageMetadata?: UsageMetadata): Recor
 
     if (subscriber.email) {
       // Mask email: handles single-char emails (a@x.com → a***@x.com)
-      sanitizedSubscriber.email = subscriber.email.replace(/(.{1,2}).*(@.*)/, '$1***$2');
+      sanitizedSubscriber.email = subscriber.email.replace(
+        /(.{1,2}).*(@.*)/,
+        "$1***$2",
+      );
     }
 
     if (subscriber.credential) {
       sanitizedSubscriber.credential = {
         name: subscriber.credential.name,
-        value: '[REDACTED]',
+        value: "[REDACTED]",
       };
     }
     result.subscriber = sanitizedSubscriber;

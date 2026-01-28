@@ -15,8 +15,8 @@ async function main() {
 
   // Metadata for tracking
   const metadata: UsageMetadata = {
-    organizationId: "org-advanced-demo",
-    productId: "prod-perplexity-advanced",
+    organizationName: "org-advanced-demo",
+    productName: "prod-perplexity-advanced",
     taskType: "multi-turn-conversation",
     subscriber: {
       id: "user-advanced-001",
@@ -57,7 +57,7 @@ async function main() {
         max_tokens: 500,
         temperature: 0.7,
       },
-      metadata
+      metadata,
     );
 
   console.log(`Assistant: ${response1.choices[0].message.content}\n`);
@@ -85,7 +85,7 @@ async function main() {
       {
         ...metadata,
         taskType: "creative-generation",
-      }
+      },
     );
 
   console.log(`Assistant: ${response2.choices[0].message.content}\n`);
@@ -111,7 +111,7 @@ async function main() {
       {
         ...metadata,
         taskType: "reasoning",
-      }
+      },
     );
 
   console.log(`Assistant: ${response3.choices[0].message.content}\n`);
