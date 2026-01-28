@@ -16,10 +16,7 @@ const logger = getLogger();
  * Chat interface - provides access to chat completions
  */
 export class ChatInterface {
-  constructor(
-    private client: OpenAI,
-    private config: any,
-  ) {}
+  constructor(private client: OpenAI, private config: any) {}
 
   /**
    * Get completions interface
@@ -33,24 +30,21 @@ export class ChatInterface {
  * Completions interface - handles chat completion requests
  */
 export class CompletionsInterface {
-  constructor(
-    private client: OpenAI,
-    private config: any,
-  ) {}
+  constructor(private client: OpenAI, private config: any) {}
 
   /**
    * Create a chat completion
    */
   async create(
     params: OpenAI.Chat.ChatCompletionCreateParams,
-    metadata?: UsageMetadata,
+    metadata?: UsageMetadata
   ): Promise<any> {
     const startTime = new Date();
     const transactionId = generateTransactionId();
 
     try {
       logger.debug(
-        `[Revenium] Creating chat completion with model: ${params.model}`,
+        `[Revenium] Creating chat completion with model: ${params.model}`
       );
 
       const response = await this.client.chat.completions.create(params);
@@ -118,14 +112,14 @@ export class CompletionsInterface {
    */
   async createStreaming(
     params: OpenAI.Chat.ChatCompletionCreateParams,
-    metadata?: UsageMetadata,
+    metadata?: UsageMetadata
   ) {
     const startTime = new Date();
     const transactionId = generateTransactionId();
 
     try {
       logger.debug(
-        `[Revenium] Creating streaming chat completion with model: ${params.model}`,
+        `[Revenium] Creating streaming chat completion with model: ${params.model}`
       );
 
       const stream = await this.client.chat.completions.create({
@@ -141,11 +135,11 @@ export class CompletionsInterface {
         metadata,
         this.config,
         params.response_format,
-        params.messages,
+        params.messages
       );
     } catch (error: any) {
       logger.error(
-        `[Revenium] Error in streaming chat completion: ${error.message}`,
+        `[Revenium] Error in streaming chat completion: ${error.message}`
       );
 
       const endTime = Date.now();

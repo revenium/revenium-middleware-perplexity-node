@@ -15,11 +15,11 @@ async function main() {
   // Optional metadata for advanced reporting, lineage tracking, and cost allocation
   const metadata: UsageMetadata = {
     // Organization & billing
-    organizationId: "org-metadata-demo",
+    organizationName: "org-metadata-demo",
     subscriptionId: "plan-premium-2025",
 
     // Product & task tracking
-    productId: "ai-assistant",
+    productName: "ai-assistant",
     taskType: "explanation-request",
     agent: "perplexity-metadata-chat-node",
 
@@ -55,7 +55,7 @@ async function main() {
         ],
         max_tokens: 1000,
       },
-      metadata
+      metadata,
     );
 
   // Display response

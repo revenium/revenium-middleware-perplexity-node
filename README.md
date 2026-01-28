@@ -204,43 +204,43 @@ The middleware automatically captures comprehensive usage data:
 
 The following table shows all fields this middleware sends to the Revenium API:
 
-| Field                   | Type    | Required  | Description                                        |
-| ----------------------- | ------- | --------- | -------------------------------------------------- |
-| **Core Fields**         |         |           |                                                    |
-| `model`                 | string  | Yes       | Perplexity model name (e.g., "sonar-pro")          |
-| `provider`              | string  | Yes       | Always "Perplexity"                                |
-| `inputTokenCount`       | integer | Yes       | Number of input tokens consumed                    |
-| `outputTokenCount`      | integer | Yes       | Number of output tokens generated                  |
-| `totalTokenCount`       | integer | Yes       | Total tokens (input + output)                      |
-| `requestDuration`       | integer | Yes       | Request duration in milliseconds                   |
-| **Timing**              |         |           |                                                    |
-| `requestTime`           | string  | Auto      | ISO 8601 timestamp when request started            |
-| `responseTime`          | string  | Auto      | ISO 8601 timestamp when response completed         |
-| `completionStartTime`   | string  | Auto      | ISO 8601 timestamp when completion started         |
-| `timeToFirstToken`      | integer | Streaming | Time to first token in ms (streaming only)         |
-| **Request Details**     |         |           |                                                    |
-| `transactionId`         | string  | Auto      | Unique transaction identifier                      |
-| `operationType`         | string  | Auto      | Always "CHAT" for chat completions                 |
-| `stopReason`            | string  | Auto      | Completion finish reason ("END", "STOP", etc.)     |
-| `isStreamed`            | boolean | Auto      | Whether response was streamed                      |
-| `costType`              | string  | Auto      | Always "AI"                                        |
-| `modelSource`           | string  | Auto      | Always "PERPLEXITY"                                |
-| `middlewareSource`      | string  | Auto      | Always "revenium-perplexity-node"                  |
-| **Cost Information**    |         |           |                                                    |
-| `inputTokenCost`        | number  | Optional  | Cost for input tokens (if provided by Perplexity)  |
-| `outputTokenCost`       | number  | Optional  | Cost for output tokens (if provided by Perplexity) |
-| `totalCost`             | number  | Optional  | Total cost (if provided by Perplexity)             |
-| **Business Context**    |         |           |                                                    |
-| `organizationId`        | string  | Optional  | Your organization identifier                       |
-| `productId`             | string  | Optional  | Your product identifier                            |
-| `subscriptionId`        | string  | Optional  | Your subscription identifier                       |
-| `taskType`              | string  | Optional  | Type of AI task (e.g., "chat", "research")         |
-| `traceId`               | string  | Optional  | Session or conversation tracking ID                |
-| `agent`                 | string  | Optional  | AI agent or bot identifier                         |
-| `responseQualityScore`  | number  | Optional  | Custom quality rating (0.0-1.0)                    |
-| `subscriber.id`         | string  | Optional  | User identifier                                    |
-| `subscriber.email`      | string  | Optional  | User email address                                 |
-| `subscriber.credential` | object  | Optional  | Authentication credential (name, value)            |
+| Field                   | Type    | Required  | Description                                              |
+| ----------------------- | ------- | --------- | -------------------------------------------------------- |
+| **Core Fields**         |         |           |                                                          |
+| `model`                 | string  | Yes       | Perplexity model name (e.g., "sonar-pro")                |
+| `provider`              | string  | Yes       | Always "Perplexity"                                      |
+| `inputTokenCount`       | integer | Yes       | Number of input tokens consumed                          |
+| `outputTokenCount`      | integer | Yes       | Number of output tokens generated                        |
+| `totalTokenCount`       | integer | Yes       | Total tokens (input + output)                            |
+| `requestDuration`       | integer | Yes       | Request duration in milliseconds                         |
+| **Timing**              |         |           |                                                          |
+| `requestTime`           | string  | Auto      | ISO 8601 timestamp when request started                  |
+| `responseTime`          | string  | Auto      | ISO 8601 timestamp when response completed               |
+| `completionStartTime`   | string  | Auto      | ISO 8601 timestamp when completion started               |
+| `timeToFirstToken`      | integer | Streaming | Time to first token in ms (streaming only)               |
+| **Request Details**     |         |           |                                                          |
+| `transactionId`         | string  | Auto      | Unique transaction identifier                            |
+| `operationType`         | string  | Auto      | Always "CHAT" for chat completions                       |
+| `stopReason`            | string  | Auto      | Completion finish reason ("END", "STOP", etc.)           |
+| `isStreamed`            | boolean | Auto      | Whether response was streamed                            |
+| `costType`              | string  | Auto      | Always "AI"                                              |
+| `modelSource`           | string  | Auto      | Always "PERPLEXITY"                                      |
+| `middlewareSource`      | string  | Auto      | Always "revenium-perplexity-node"                        |
+| **Cost Information**    |         |           |                                                          |
+| `inputTokenCost`        | number  | Optional  | Cost for input tokens (if provided by Perplexity)        |
+| `outputTokenCost`       | number  | Optional  | Cost for output tokens (if provided by Perplexity)       |
+| `totalCost`             | number  | Optional  | Total cost (if provided by Perplexity)                   |
+| **Business Context**    |         |           |                                                          |
+| `organizationName`      | string  | Optional  | Customer organization name for multi-tenant applications |
+| `productName`           | string  | Optional  | Product or feature name that is using AI services        |
+| `subscriptionId`        | string  | Optional  | Your subscription identifier                             |
+| `taskType`              | string  | Optional  | Type of AI task (e.g., "chat", "research")               |
+| `traceId`               | string  | Optional  | Session or conversation tracking ID                      |
+| `agent`                 | string  | Optional  | AI agent or bot identifier                               |
+| `responseQualityScore`  | number  | Optional  | Custom quality rating (0.0-1.0)                          |
+| `subscriber.id`         | string  | Optional  | User identifier                                          |
+| `subscriber.email`      | string  | Optional  | User email address                                       |
+| `subscriber.credential` | object  | Optional  | Authentication credential (name, value)                  |
 
 **Notes:**
 

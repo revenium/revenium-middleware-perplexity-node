@@ -32,13 +32,13 @@ async function main() {
       },
       {
         // Optional metadata
-        organizationId: "my-customers-name",
-        productId: "my-product",
+        organizationName: "my-customers-name",
+        productName: "my-product",
         subscriber: {
           id: "user-123",
           email: "user@example.com",
         },
-      }
+      },
     );
 
   // Process stream

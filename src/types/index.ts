@@ -37,9 +37,19 @@ export interface UsageMetadata {
   /** User identification information */
   subscriber?: Subscriber;
 
-  /** Organization or company identifier */
+  /** Customer organization name for multi-tenant applications (used for lookup/auto-creation) */
+  organizationName?: string;
+  /**
+   * @deprecated Use organizationName instead. This field will be removed in a future version.
+   * Organization or company identifier
+   */
   organizationId?: string;
-  /** Product or application identifier */
+  /** Product or feature name that is using AI services (used for lookup/auto-creation) */
+  productName?: string;
+  /**
+   * @deprecated Use productName instead. This field will be removed in a future version.
+   * Product or application identifier
+   */
   productId?: string;
   /** Subscription identifier */
   subscriptionId?: string;
@@ -133,9 +143,9 @@ export interface ReveniumPayload {
   cacheReadTokenCount?: number;
 
   // Metadata
-  organizationId?: string;
+  organizationName?: string;
+  productName?: string;
   subscriptionId?: string;
-  productId?: string;
   subscriber?: Subscriber;
   transactionId: string;
   traceId?: string;

@@ -12,8 +12,8 @@ async function main() {
   // Get client
   const client = GetClient();
   const metadata: UsageMetadata = {
-    organizationId: "org-getting-started",
-    productId: "prod-perplexity-getting-started",
+    organizationName: "org-getting-started",
+    productName: "prod-perplexity-getting-started",
   };
 
   // Create a simple chat completion
@@ -31,7 +31,7 @@ async function main() {
         ],
         max_tokens: 500,
       },
-      metadata
+      metadata,
     );
 
   console.log("Assistant:", response.choices[0]?.message?.content);

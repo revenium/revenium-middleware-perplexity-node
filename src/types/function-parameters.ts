@@ -90,7 +90,7 @@ export interface PerplexityChatRequest {
   presence_penalty?: number;
   /** Frequency penalty */
   frequency_penalty?: number;
-  /** Response format specification */
+  /** Response format for structured outputs */
   response_format?: { type: string; json_schema?: { name: string } } | string;
   /** Usage metadata for Revenium tracking (custom field, not sent to Perplexity) */
   usageMetadata?: UsageMetadata;

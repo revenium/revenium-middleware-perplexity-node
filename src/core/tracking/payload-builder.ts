@@ -54,7 +54,7 @@ export async function buildPayload(
   startTime: number,
   duration: number,
   providerInfo?: ProviderInfo,
-  timeToFirstToken?: number,
+  timeToFirstToken?: number
 ): Promise<ReveniumPayload> {
   const now = new Date().toISOString();
   const requestTime = new Date(startTime).toISOString();
@@ -134,6 +134,27 @@ export async function buildPayload(
   };
 
   // Chat-specific fields
+  const attributes: Record<string, unknown> = {};
+  if (request.response_format) {
+    if (
+      typeof request.response_format === "object" &&
+      request.response_format !== null
+    ) {
+      const formatType = request.response_format.type;
+      if (formatType) {
+        attributes.response_format_type = formatType;
+        if (formatType === "json_schema") {
+          const schemaName = request.response_format.json_schema?.name;
+          if (schemaName) {
+            attributes.response_format_schema_name = schemaName;
+          }
+        }
+      }
+    } else {
+      attributes.response_format = request.response_format;
+    }
+  }
+
   const promptData = extractPrompts(request, response, request.usageMetadata);
 
   return {
@@ -149,6 +170,7 @@ export async function buildPayload(
     isStreamed: Boolean(request.stream),
     // Time to first token (for streaming requests)
     timeToFirstToken: timeToFirstToken,
+    ...(Object.keys(attributes).length > 0 && { attributes }),
     ...(promptData && {
       systemPrompt: promptData.systemPrompt,
       inputMessages: promptData.inputMessages,

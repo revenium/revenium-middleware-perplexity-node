@@ -29,7 +29,7 @@ export async function sendReveniumMetrics(
   startTime: number,
   duration: number,
   providerInfo?: ProviderInfo,
-  timeToFirstToken?: number,
+  timeToFirstToken?: number
 ): Promise<void> {
   await safeAsyncOperation(
     async () => {
@@ -40,7 +40,7 @@ export async function sendReveniumMetrics(
         startTime,
         duration,
         providerInfo,
-        timeToFirstToken,
+        timeToFirstToken
       );
       await sendToRevenium(payload);
     },
@@ -50,7 +50,7 @@ export async function sendReveniumMetrics(
       rethrow: false, // Don't rethrow to maintain fire-and-forget behavior
       messagePrefix: "Chat completion tracking failed: ",
     },
-    logger,
+    logger
   );
 }
 
@@ -118,7 +118,7 @@ export function trackUsageAsync(trackingData: {
     startTime,
     trackingData.duration,
     trackingData.providerInfo,
-    trackingData.timeToFirstToken,
+    trackingData.timeToFirstToken
   )
     .then(() => {
       logger.debug("Usage tracking completed successfully", {
