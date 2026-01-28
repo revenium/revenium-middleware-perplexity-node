@@ -40,8 +40,10 @@ const METADATA_FIELD_MAP: MetadataFieldConfig[] = [
     source: "responseQualityScore",
     transform: (value: unknown) => {
       // Ensure quality score is between 0.0 and 1.0 (API spec requirement)
-      if (typeof value === "number") return Math.max(0, Math.min(1, value));
-      return value;
+      if (typeof value === "number" && Number.isFinite(value)) {
+        return Math.max(0, Math.min(1, value));
+      }
+      return undefined;
     },
   },
 ];
