@@ -59,3 +59,28 @@ export { trackUsageAsync } from "./core/tracking/index.js";
  * Provider detection functions
  */
 export { detectProvider, getProviderMetadata } from "./core/providers/index.js";
+
+/**
+ * Tool metering types
+ */
+export type {
+  ToolContext,
+  ToolMetadata,
+  ToolEventPayload,
+  ToolCallReport,
+} from "./types/tool-metering.js";
+
+/**
+ * Tool metering functions
+ */
+export {
+  meterTool,
+  reportToolCall,
+} from "./core/tracking/tool-tracker.js";
+
+export {
+  setToolContext,
+  getToolContext,
+  clearToolContext,
+  runWithToolContext,
+} from "./core/tracking/tool-context.js";

@@ -1,6 +1,6 @@
 {
   "name": "@revenium/perplexity",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "NodeJS middleware for Perplexity AI API with Revenium metering",
   "homepage": "https://github.com/revenium/revenium-middleware-perplexity-node#readme",
   "bugs": {
@@ -46,8 +46,12 @@
     "example:metadata": "npx tsx examples/metadata.ts",
     "example:advanced": "npx tsx examples/advanced.ts",
     "example:stream": "npx tsx examples/stream.ts",
-    "example:prompt-capture": "npx tsx examples/prompt-capture.ts",
-    "example": "npm run example:getting-started"
+    "test": "jest",
+    "test:unit": "jest --testPathPatterns=tests/unit",
+    "test:integration": "jest --testPathPatterns=tests/integration --passWithNoTests",
+    "test:performance": "jest --testPathPatterns=tests/performance --passWithNoTests",
+    "test:watch": "jest --watch",
+    "test:coverage": "jest --coverage"
   },
   "keywords": [
     "revenium",
@@ -72,8 +76,11 @@
     "uuid": "^13.0.0"
   },
   "devDependencies": {
+    "@jest/globals": "^30.2.0",
+    "@types/jest": "^30.0.0",
     "@types/node": "^24.7.1",
-    "openai": "^5.23.2",
+    "jest": "^30.2.0",
+    "ts-jest": "^29.4.6",
     "tsx": "^4.19.2",
     "typescript": "^5.9.2"
   },

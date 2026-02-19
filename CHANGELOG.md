@@ -5,30 +5,49 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.0] - 2026-01-21
+## [Unreleased]
+
+## [2.1.2] - 2026-02-19
 
 ### Added
 
-- Prompt capture functionality with automatic credential sanitization
-- New prompt capture fields in ReveniumPayload: systemPrompt, inputMessages, outputResponse, promptsTruncated
-- Configuration options: capturePrompts (boolean), maxPromptSize (number, default: 50000)
-- Environment variables: REVENIUM_CAPTURE_PROMPTS, REVENIUM_MAX_PROMPT_SIZE
-- Per-call override via usageMetadata.capturePrompts
-- Comprehensive credential sanitization with 13 patterns:
-  - Perplexity API keys (pplx-\*)
-  - OpenAI keys (sk-_, sk-proj-_, sk-ant-\*)
+- Tool metering support (meterTool, reportToolCall, setToolContext)
+- outputFields feature for automatic result extraction
+- Fetch timeout to sendToolEvent
+
+### Fixed
+
+- Remove dead response.text() in sendToolEvent
+
+## [2.1.1] - 2026-02-06
+
+### Added
+
+- Summary printer with human and JSON output formats
+- Region detection from AWS, Azure, GCP environment variables
+- Credential alias configuration support
+- Trace name and trace type validation
+- Retry number tracking
+
+## [2.1.0] - 2026-01-21
+
+### Changed
+
+- Updated credential sanitization patterns from 8 to 13 patterns
+- Enhanced security with additional credential types:
+  - Anthropic API keys (sk-ant-\*)
   - AWS access keys (AKIA\*)
   - GitHub tokens (ghp*\*, ghs*\*)
   - JWT tokens (eyJ*.eyJ*.\*)
-  - Bearer tokens
-  - Generic API keys, tokens, passwords, secrets
-- Automatic truncation of prompts exceeding maxPromptSize with truncation flag
+  - Generic secrets pattern
+- Improved regex patterns for better credential detection
+- Fixed password regex to properly handle quoted values
+- Consistent character class patterns across all credential types
 
 ### Security
 
-- All captured prompts are automatically sanitized to remove sensitive credentials
-- Credential patterns are redacted before transmission to Revenium API
-- Prompt capture is opt-in (disabled by default) for privacy
+- Enhanced credential sanitization to cover more API key formats
+- Improved detection of sensitive data in prompts and responses
 
 ## [2.0.9] - 2026-01-06
 
@@ -115,6 +134,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Background processing for non-blocking tracking
 - Debug logging support
 
+[2.1.2]: https://github.com/revenium/revenium-middleware-perplexity-node/releases/tag/v2.1.2
+[2.1.1]: https://github.com/revenium/revenium-middleware-perplexity-node/releases/tag/v2.1.1
+[2.1.0]: https://github.com/revenium/revenium-middleware-perplexity-node/releases/tag/v2.1.0
+[2.0.9]: https://github.com/revenium/revenium-middleware-perplexity-node/releases/tag/v2.0.9
 [2.0.8]: https://github.com/revenium/revenium-middleware-perplexity-node/releases/tag/v2.0.8
 [2.0.4]: https://github.com/revenium/revenium-middleware-perplexity-node/releases/tag/v2.0.4
 [2.0.3]: https://github.com/revenium/revenium-middleware-perplexity-node/releases/tag/v2.0.3
